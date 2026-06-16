@@ -44,6 +44,12 @@ DEFAULT_PROGRESSION_GAP = 0.650
 DEFAULT_CHART_PERIOD = 1.750
 
 NOTE_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+PRESET_STYLES = {
+    "yiruma", "richard_clayderman", "clayderman", "ludovico_einaudi", "einaudi",
+    "jim_brickman", "brickman", "kevin_kern", "kern", "yanni", "giovanni_marradi", "marradi",
+    "giovanni_allevi", "allevi", "blues", "bolero", "waltz", "boston", "slow_rock", "slowrock",
+    "rumba", "cha_cha_cha", "chacha", "bossa_nova", "bossa", "tango", "pop_ballad", "popballad"
+}
 NOTE_TO_PC = {
     "C": 0,
     "B#": 0,
@@ -370,12 +376,18 @@ class Accompanist:
         self.active_chord: List[int] = []
         self.pending_events: List[ScheduledMidiEvent] = []
         self.time_scale = 1.0
+        self.muted = False
         self.current_example: Optional[ChordExample] = None
         self.current_pattern_start = 0.0
         self.by_melody_and_prev: Dict[Tuple[int, Optional[int]], List[ChordExample]] = defaultdict(list)
         self.by_melody: Dict[int, List[ChordExample]] = defaultdict(list)
         self.all_examples: List[ChordExample] = []
         self._load(model)
+
+    def set_muted(self, muted: bool) -> None:
+        self.muted = muted
+        if muted:
+            self.stop_active()
 
     def set_time_scale(self, scale: float) -> None:
         self.time_scale = max(0.60, min(1.60, scale))
@@ -494,7 +506,7 @@ class Accompanist:
         self.stop_active()
 
         # Rebuild dynamically if using preset style and has token
-        if ex.token and (self.comp == "style" or self.style in {"yiruma", "richard_clayderman", "ludovico_einaudi"}):
+        if ex.token and (self.comp == "style" or self.style in PRESET_STYLES):
             try:
                 ex = chart_token_to_example(ex.token, ex.duration, section, style=self.style)
                 ex = ChordExample(
@@ -554,15 +566,20 @@ class Accompanist:
 
     def _play_block(self, ex: ChordExample) -> None:
         self.active_chord = list(ex.notes)
+        if self.muted:
+            return
         velocity = max(1, min(127, ex.velocity))
         for note in self.active_chord:
             self.output.send(mido.Message("note_on", note=note, velocity=velocity, channel=self.channel))
 
     def _schedule_pattern(self, ex: ChordExample, now: float) -> None:
         self.pending_events = []
-        self._append_pattern(ex, now)
         self.current_example = ex
         self.current_pattern_start = now
+        if self.muted:
+            self.active_chord = []
+            return
+        self._append_pattern(ex, now)
 
     def _append_pattern(self, ex: ChordExample, now: float) -> None:
         pattern = ex.pattern if (self.comp in {"learned", "style"} and ex.pattern) else self._power_pattern(ex.notes, ex.velocity)
@@ -597,7 +614,8 @@ class Accompanist:
                 if next_start < now:
                     next_start = now
                 self.current_pattern_start = next_start
-                self._append_pattern(self.current_example, next_start)
+                if not self.muted:
+                    self._append_pattern(self.current_example, next_start)
 
         due = [item for item in self.pending_events if item.time_s <= now + 0.0005]
         self.pending_events = [item for item in self.pending_events if item.time_s > now + 0.0005]
@@ -836,6 +854,12 @@ def cmd_play(args) -> None:
         while not stopped:
             now = time.monotonic()
             for msg in in_port.iter_pending():
+                if msg.type == "control_change" and msg.control == 1:
+                    val = getattr(msg, "value", 0)
+                    if val >= 120:
+                        accompanist.set_muted(True)
+                    else:
+                        accompanist.set_muted(False)
                 suppress_control_note = (
                     args.mode in {"progression", "chart", "lyric"}
                     and args.progression_trigger == "control-note"
@@ -1144,7 +1168,7 @@ def chart_token_to_example(token: str, duration: float, section: str = "verse", 
                 (top_root, 0.80, 60),
                 (bass_fifth, 1.20, 50),
             )
-    elif style_lower == "ludovico_einaudi" or style_lower == "einaudi":
+    elif style_lower in {"ludovico_einaudi", "einaudi"}:
         if sec_type == "intro":
             pattern = (
                 (base_root, 0.00, 68),
@@ -1181,6 +1205,636 @@ def chart_token_to_example(token: str, duration: float, section: str = "verse", 
                 (right_third, 1.00, 56),
                 (bass_octave, 1.20, 58),
                 (bass_fifth, 1.40, 54),
+            )
+    elif style_lower in {"jim_brickman", "brickman"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 72),
+                (bass_fifth, 0.25, 60),
+                (bass_octave, 0.50, 64),
+                (right_third, 0.75, 58),
+                (right_fifth, 1.00, 60),
+                (top_root, 1.25, 62),
+                (right_fifth, 1.50, 56),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 80),
+                (bass_fifth, 0.15, 68),
+                (bass_octave, 0.30, 70),
+                (right_third, 0.45, 74),
+                (right_fifth, 0.45, 74),
+                (top_root, 0.45, 76),
+                (right_ninth, 0.70, 68),
+                (top_root, 0.90, 70),
+                (right_fifth, 1.10, 62),
+                (right_third, 1.30, 60),
+                (bass_octave, 1.50, 64),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 74),
+                (bass_fifth, 0.20, 62),
+                (bass_octave, 0.40, 64),
+                (right_third, 0.60, 58),
+                (right_fifth, 0.60, 58),
+                (top_root, 0.60, 60),
+                (right_third, 1.00, 54),
+                (right_fifth, 1.00, 54),
+                (bass_fifth, 1.30, 50),
+            )
+    elif style_lower in {"kevin_kern", "kern"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 66),
+                (bass_fifth, 0.30, 56),
+                (bass_octave, 0.60, 58),
+                (right_third, 0.90, 52),
+                (right_fifth, 1.20, 54),
+                (top_root, 1.50, 50),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 74),
+                (bass_fifth, 0.20, 62),
+                (bass_octave, 0.40, 65),
+                (right_third, 0.60, 60),
+                (right_fifth, 0.80, 62),
+                (top_root, 1.00, 64),
+                (right_fifth, 1.20, 56),
+                (right_third, 1.40, 54),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 68),
+                (bass_fifth, 0.25, 58),
+                (bass_octave, 0.50, 60),
+                (right_third, 0.75, 54),
+                (right_fifth, 1.00, 56),
+                (right_third, 1.25, 52),
+                (bass_octave, 1.50, 50),
+            )
+    elif style_lower == "yanni":
+        if sec_type == "intro":
+            pattern = (
+                (base_root - 12, 0.00, 85),
+                (base_root, 0.05, 80),
+                (bass_fifth, 0.20, 70),
+                (bass_octave, 0.35, 72),
+                (right_third, 0.50, 68),
+                (right_fifth, 0.65, 70),
+                (top_root, 0.80, 74),
+                (right_ninth, 0.95, 72),
+                (top_root + 12, 1.10, 76),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root - 12, 0.00, 95),
+                (base_root, 0.05, 90),
+                (right_third, 0.15, 85),
+                (right_fifth, 0.15, 85),
+                (top_root, 0.15, 88),
+                (bass_octave, 0.40, 75),
+                (bass_fifth, 0.60, 78),
+                (right_third, 0.80, 80),
+                (right_fifth, 0.95, 82),
+                (top_root, 1.10, 84),
+                (right_ninth, 1.25, 80),
+                (top_root, 1.40, 82),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root - 12, 0.00, 80),
+                (base_root, 0.05, 75),
+                (bass_fifth, 0.25, 68),
+                (bass_octave, 0.45, 70),
+                (right_third, 0.65, 64),
+                (right_fifth, 0.85, 66),
+                (top_root, 1.05, 70),
+                (right_fifth, 1.25, 60),
+                (right_third, 1.45, 58),
+            )
+    elif style_lower in {"giovanni_marradi", "marradi"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 75),
+                (bass_octave, 0.10, 70),
+                (right_third, 0.25, 65),
+                (right_fifth, 0.35, 67),
+                (top_root, 0.45, 70),
+                (right_ninth, 0.55, 64),
+                (top_root, 0.65, 66),
+                (right_fifth, 0.75, 60),
+                (right_third, 0.85, 58),
+                (bass_fifth, 1.00, 60),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 88),
+                (bass_octave, 0.08, 80),
+                (right_third, 0.20, 78),
+                (right_fifth, 0.28, 76),
+                (top_root, 0.36, 80),
+                (right_ninth, 0.44, 74),
+                (top_root + 12, 0.52, 82),
+                (top_root, 0.68, 76),
+                (right_fifth, 0.84, 72),
+                (right_third, 1.00, 70),
+                (bass_fifth, 1.20, 68),
+                (bass_octave, 1.40, 70),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 78),
+                (bass_fifth, 0.15, 66),
+                (bass_octave, 0.30, 68),
+                (right_third, 0.45, 62),
+                (right_fifth, 0.55, 64),
+                (top_root, 0.65, 66),
+                (right_fifth, 0.80, 58),
+                (right_third, 0.95, 56),
+                (bass_octave, 1.10, 60),
+                (bass_fifth, 1.25, 58),
+            )
+    elif style_lower in {"giovanni_allevi", "allevi"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 70),
+                (right_third, 0.20, 62),
+                (right_fifth, 0.40, 64),
+                (base_root, 0.60, 68),
+                (top_root, 0.80, 60),
+                (right_third, 1.00, 56),
+                (right_fifth, 1.20, 58),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 82),
+                (right_third, 0.18, 74),
+                (right_fifth, 0.18, 74),
+                (top_root, 0.36, 76),
+                (bass_fifth, 0.54, 68),
+                (bass_octave, 0.72, 70),
+                (right_third, 0.90, 74),
+                (right_fifth, 0.90, 74),
+                (top_root, 1.08, 76),
+                (base_root, 1.26, 78),
+                (bass_fifth, 1.44, 68),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 74),
+                (right_third, 0.25, 66),
+                (right_fifth, 0.25, 66),
+                (bass_fifth, 0.50, 62),
+                (top_root, 0.75, 68),
+                (base_root, 1.00, 70),
+                (right_third, 1.25, 60),
+                (right_fifth, 1.25, 60),
+                (bass_fifth, 1.50, 58),
+            )
+    elif style_lower == "blues":
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 80),
+                (base_root + 7, 0.30, 72),
+                (base_root + 9, 0.60, 72),
+                (base_root + 10, 0.90, 80),
+                (base_root + 9, 1.20, 72),
+                (base_root + 7, 1.50, 72),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 90),
+                (right_third, 0.00, 80),
+                (right_fifth, 0.00, 80),
+                (top_root, 0.00, 80),
+                (base_root + 7, 0.25, 80),
+                (base_root + 9, 0.50, 82),
+                (right_third, 0.50, 80),
+                (right_fifth, 0.50, 80),
+                (top_root, 0.50, 80),
+                (base_root + 10, 0.75, 90),
+                (base_root + 9, 1.00, 80),
+                (base_root + 7, 1.25, 80),
+                (right_third, 1.25, 78),
+                (right_fifth, 1.25, 78),
+                (top_root, 1.25, 78),
+                (base_root + 10, 1.50, 90),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 84),
+                (right_third, 0.00, 70),
+                (right_fifth, 0.00, 70),
+                (base_root + 7, 0.30, 75),
+                (base_root + 9, 0.60, 75),
+                (right_third, 0.60, 70),
+                (right_fifth, 0.60, 70),
+                (base_root + 10, 0.90, 84),
+                (base_root + 9, 1.20, 75),
+                (base_root + 7, 1.50, 75),
+            )
+    elif style_lower == "bolero":
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 80),
+                (right_third, 0.22, 65),
+                (right_fifth, 0.22, 65),
+                (top_root, 0.22, 67),
+                (right_third, 0.44, 63),
+                (right_fifth, 0.44, 63),
+                (top_root, 0.44, 65),
+                (bass_fifth, 0.66, 72),
+                (right_third, 0.88, 65),
+                (right_fifth, 0.88, 65),
+                (top_root, 0.88, 67),
+                (bass_octave, 1.10, 72),
+                (right_third, 1.32, 63),
+                (right_fifth, 1.32, 63),
+                (top_root, 1.32, 65),
+                (right_third, 1.54, 60),
+                (right_fifth, 1.54, 60),
+                (top_root, 1.54, 62),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root - 12, 0.00, 92),
+                (base_root, 0.00, 86),
+                (right_third, 0.22, 82),
+                (right_fifth, 0.22, 82),
+                (top_root, 0.22, 84),
+                (right_third, 0.44, 78),
+                (right_fifth, 0.44, 78),
+                (top_root, 0.44, 80),
+                (bass_fifth, 0.66, 85),
+                (right_third, 0.88, 82),
+                (right_fifth, 0.88, 82),
+                (top_root, 0.88, 84),
+                (bass_octave, 1.10, 85),
+                (right_third, 1.32, 78),
+                (right_fifth, 1.32, 78),
+                (top_root, 1.32, 80),
+                (right_third, 1.54, 75),
+                (right_fifth, 1.54, 75),
+                (top_root, 1.54, 77),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 85),
+                (right_third, 0.22, 70),
+                (right_fifth, 0.22, 70),
+                (top_root, 0.22, 72),
+                (right_third, 0.44, 68),
+                (right_fifth, 0.44, 68),
+                (top_root, 0.44, 70),
+                (bass_fifth, 0.66, 75),
+                (right_third, 0.88, 70),
+                (right_fifth, 0.88, 70),
+                (top_root, 0.88, 72),
+                (bass_octave, 1.10, 75),
+                (right_third, 1.32, 68),
+                (right_fifth, 1.32, 68),
+                (top_root, 1.32, 70),
+                (right_third, 1.54, 65),
+                (right_fifth, 1.54, 65),
+                (top_root, 1.54, 67),
+            )
+    elif style_lower == "waltz":
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 75),
+                (right_third, 0.50, 62),
+                (right_fifth, 0.50, 62),
+                (top_root, 0.50, 64),
+                (right_third, 1.00, 62),
+                (right_fifth, 1.00, 62),
+                (top_root, 1.00, 64),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 86),
+                (right_third, 0.45, 76),
+                (right_fifth, 0.45, 76),
+                (top_root, 0.45, 78),
+                (right_third, 0.90, 76),
+                (right_fifth, 0.90, 76),
+                (top_root, 0.90, 78),
+                (bass_fifth, 1.20, 80),
+                (right_third, 1.35, 74),
+                (right_fifth, 1.35, 74),
+                (top_root, 1.35, 76),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 80),
+                (right_third, 0.50, 68),
+                (right_fifth, 0.50, 68),
+                (top_root, 0.50, 70),
+                (right_third, 1.00, 68),
+                (right_fifth, 1.00, 68),
+                (top_root, 1.00, 70),
+            )
+    elif style_lower == "boston":
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 70),
+                (bass_fifth, 0.25, 60),
+                (bass_octave, 0.50, 62),
+                (right_third, 0.75, 56),
+                (right_fifth, 1.00, 58),
+                (top_root, 1.25, 54),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 84),
+                (bass_fifth, 0.20, 72),
+                (bass_octave, 0.40, 74),
+                (right_third, 0.60, 68),
+                (right_fifth, 0.80, 70),
+                (top_root, 1.00, 72),
+                (right_ninth, 1.20, 66),
+                (top_root, 1.40, 68),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 76),
+                (bass_fifth, 0.25, 66),
+                (bass_octave, 0.50, 68),
+                (right_third, 0.75, 62),
+                (right_fifth, 1.00, 64),
+                (top_root, 1.25, 60),
+            )
+    elif style_lower in {"slow_rock", "slowrock"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 72),
+                (bass_fifth, 0.25, 62),
+                (bass_octave, 0.50, 64),
+                (right_third, 0.75, 58),
+                (right_fifth, 1.00, 60),
+                (top_root, 1.25, 56),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 86),
+                (bass_fifth, 0.20, 74),
+                (bass_octave, 0.40, 76),
+                (right_third, 0.60, 70),
+                (right_fifth, 0.80, 72),
+                (top_root, 1.00, 74),
+                (right_ninth, 1.20, 68),
+                (top_root, 1.35, 70),
+                (right_fifth, 1.50, 66),
+                (right_third, 1.65, 64),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 78),
+                (bass_fifth, 0.22, 66),
+                (bass_octave, 0.44, 68),
+                (right_third, 0.66, 62),
+                (right_fifth, 0.88, 64),
+                (top_root, 1.10, 66),
+                (right_fifth, 1.32, 58),
+                (right_third, 1.54, 56),
+            )
+    elif style_lower == "rumba":
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 76),
+                (right_third, 0.35, 66),
+                (right_fifth, 0.35, 66),
+                (top_root, 0.35, 68),
+                (bass_fifth, 0.70, 70),
+                (right_third, 1.05, 66),
+                (right_fifth, 1.05, 66),
+                (top_root, 1.05, 68),
+                (bass_octave, 1.40, 70),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 88),
+                (right_third, 0.30, 78),
+                (right_fifth, 0.30, 78),
+                (top_root, 0.30, 80),
+                (bass_fifth, 0.60, 80),
+                (right_third, 0.90, 78),
+                (right_fifth, 0.90, 78),
+                (top_root, 0.90, 80),
+                (bass_octave, 1.20, 82),
+                (right_third, 1.45, 76),
+                (right_fifth, 1.45, 76),
+                (top_root, 1.45, 78),
+                (bass_fifth, 1.60, 74),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 80),
+                (right_third, 0.35, 70),
+                (right_fifth, 0.35, 70),
+                (top_root, 0.35, 72),
+                (bass_fifth, 0.70, 74),
+                (right_third, 1.05, 70),
+                (right_fifth, 1.05, 70),
+                (top_root, 1.05, 72),
+                (bass_octave, 1.40, 74),
+                (right_third, 1.55, 66),
+                (right_fifth, 1.55, 66),
+                (top_root, 1.55, 68),
+            )
+    elif style_lower in {"cha_cha_cha", "chacha"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 80),
+                (bass_fifth, 0.50, 75),
+                (right_third, 1.00, 70),
+                (right_fifth, 1.00, 70),
+                (top_root, 1.00, 72),
+                (right_third, 1.25, 70),
+                (right_fifth, 1.25, 70),
+                (top_root, 1.25, 72),
+                (right_third, 1.50, 72),
+                (right_fifth, 1.50, 72),
+                (top_root, 1.50, 74),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 90),
+                (bass_octave, 0.25, 80),
+                (bass_fifth, 0.50, 82),
+                (bass_octave, 0.75, 80),
+                (right_third, 1.00, 80),
+                (right_fifth, 1.00, 80),
+                (top_root, 1.00, 82),
+                (right_third, 1.25, 80),
+                (right_fifth, 1.25, 80),
+                (top_root, 1.25, 82),
+                (right_third, 1.50, 82),
+                (right_fifth, 1.50, 82),
+                (top_root, 1.50, 84),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 84),
+                (bass_fifth, 0.50, 78),
+                (right_third, 1.00, 74),
+                (right_fifth, 1.00, 74),
+                (top_root, 1.00, 76),
+                (right_third, 1.25, 74),
+                (right_fifth, 1.25, 74),
+                (top_root, 1.25, 76),
+                (right_third, 1.50, 76),
+                (right_fifth, 1.50, 76),
+                (top_root, 1.50, 78),
+            )
+    elif style_lower in {"bossa_nova", "bossa"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 78),
+                (right_third, 0.38, 68),
+                (right_fifth, 0.38, 68),
+                (top_root, 0.38, 70),
+                (right_third, 0.75, 68),
+                (right_fifth, 0.75, 68),
+                (top_root, 0.75, 70),
+                (bass_fifth, 1.00, 75),
+                (right_third, 1.38, 68),
+                (right_fifth, 1.38, 68),
+                (top_root, 1.38, 70),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 88),
+                (right_third, 0.38, 78),
+                (right_fifth, 0.38, 78),
+                (top_root, 0.38, 80),
+                (right_third, 0.75, 78),
+                (right_fifth, 0.75, 78),
+                (top_root, 0.75, 80),
+                (bass_fifth, 1.00, 84),
+                (right_third, 1.38, 78),
+                (right_fifth, 1.38, 78),
+                (top_root, 1.38, 80),
+                (right_third, 1.55, 76),
+                (right_fifth, 1.55, 76),
+                (top_root, 1.55, 78),
+                (bass_octave, 1.68, 80),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 82),
+                (right_third, 0.38, 72),
+                (right_fifth, 0.38, 72),
+                (top_root, 0.38, 74),
+                (right_third, 0.75, 72),
+                (right_fifth, 0.75, 72),
+                (top_root, 0.75, 74),
+                (bass_fifth, 1.00, 78),
+                (right_third, 1.38, 72),
+                (right_fifth, 1.38, 72),
+                (top_root, 1.38, 74),
+                (right_third, 1.60, 68),
+                (right_fifth, 1.60, 68),
+                (top_root, 1.60, 70),
+            )
+    elif style_lower == "tango":
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 85),
+                (right_third, 0.00, 75),
+                (right_fifth, 0.00, 75),
+                (top_root, 0.00, 78),
+                (right_third, 0.38, 70),
+                (right_fifth, 0.38, 70),
+                (top_root, 0.38, 72),
+                (right_third, 0.75, 70),
+                (right_fifth, 0.75, 70),
+                (top_root, 0.75, 72),
+                (bass_fifth, 1.00, 82),
+                (right_third, 1.50, 75),
+                (right_fifth, 1.50, 75),
+                (top_root, 1.50, 78),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 95),
+                (right_third, 0.00, 85),
+                (right_fifth, 0.00, 85),
+                (top_root, 0.00, 88),
+                (right_third, 0.38, 80),
+                (right_fifth, 0.38, 80),
+                (top_root, 0.38, 82),
+                (right_third, 0.75, 80),
+                (right_fifth, 0.75, 80),
+                (top_root, 0.75, 82),
+                (bass_fifth, 1.00, 90),
+                (right_third, 1.00, 85),
+                (right_fifth, 1.00, 85),
+                (top_root, 1.00, 88),
+                (right_third, 1.38, 82),
+                (right_fifth, 1.38, 82),
+                (top_root, 1.38, 84),
+                (right_third, 1.50, 85),
+                (right_fifth, 1.50, 85),
+                (top_root, 1.50, 88),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 90),
+                (right_third, 0.00, 80),
+                (right_fifth, 0.00, 80),
+                (top_root, 0.00, 82),
+                (right_third, 0.38, 75),
+                (right_fifth, 0.38, 75),
+                (top_root, 0.38, 77),
+                (right_third, 0.75, 75),
+                (right_fifth, 0.75, 75),
+                (top_root, 0.75, 77),
+                (bass_fifth, 1.00, 86),
+                (right_third, 1.00, 78),
+                (right_fifth, 1.00, 78),
+                (top_root, 1.00, 80),
+                (right_third, 1.50, 80),
+                (right_fifth, 1.50, 80),
+                (top_root, 1.50, 82),
+            )
+    elif style_lower in {"pop_ballad", "popballad"}:
+        if sec_type == "intro":
+            pattern = (
+                (base_root, 0.00, 75),
+                (bass_fifth, 0.20, 62),
+                (bass_octave, 0.40, 64),
+                (right_third, 0.60, 58),
+                (right_fifth, 0.80, 60),
+                (top_root, 1.00, 62),
+                (right_fifth, 1.20, 56),
+                (right_third, 1.40, 54),
+            )
+        elif sec_type == "chorus":
+            pattern = (
+                (base_root, 0.00, 84),
+                (bass_octave, 0.10, 72),
+                (bass_fifth, 0.20, 70),
+                (right_third, 0.40, 74),
+                (right_fifth, 0.60, 72),
+                (top_root, 0.80, 76),
+                (right_ninth, 1.00, 68),
+                (top_root, 1.20, 70),
+                (right_fifth, 1.40, 62),
+                (right_third, 1.60, 60),
+            )
+        else: # verse/default
+            pattern = (
+                (base_root, 0.00, 78),
+                (bass_fifth, 0.20, 66),
+                (bass_octave, 0.40, 68),
+                (right_third, 0.60, 62),
+                (right_fifth, 0.80, 64),
+                (top_root, 1.00, 66),
+                (right_ninth, 1.20, 58),
+                (top_root, 1.40, 60),
+                (right_fifth, 1.60, 54),
             )
     else: # yiruma (default)
         if sec_type == "intro":
@@ -1706,6 +2360,12 @@ def midi_engine_loop(state: AppState):
                 learned_control_note = not state.learn_control_note
                 
                 for msg in in_port.iter_pending():
+                    if msg.type == "control_change" and msg.control == 1:
+                        val = getattr(msg, "value", 0)
+                        if val >= 120:
+                            accompanist.set_muted(True)
+                        else:
+                            accompanist.set_muted(False)
                     suppress_control_note = (
                         state.mode in {"progression", "chart", "lyric"}
                         and state.progression_trigger == "control-note"
@@ -2158,7 +2818,12 @@ def build_parser() -> argparse.ArgumentParser:
     play.add_argument("--cc-arm-value", type=int, default=60, help="CC value that arms the next trigger in cc-down mode.")
     play.add_argument("--cc-trigger-value", type=int, default=30, help="CC value at or below which the armed cc-down trigger advances the chord.")
     play.add_argument("--comp", choices=["learned", "power", "block", "style"], default="learned", help="Accompaniment style. learned uses trained left-hand patterns; style uses preset arpeggios; old models fall back to power.")
-    play.add_argument("--style", choices=["yiruma", "richard_clayderman", "ludovico_einaudi"], default="yiruma", help="Chord style preset when comp is 'style' or progression/chart/lyric modes are active.")
+    play.add_argument("--style", choices=[
+        "yiruma", "richard_clayderman", "ludovico_einaudi",
+        "jim_brickman", "kevin_kern", "yanni", "giovanni_marradi", "giovanni_allevi",
+        "blues", "bolero", "waltz", "boston", "slow_rock", "rumba",
+        "cha_cha_cha", "bossa_nova", "tango", "pop_ballad"
+    ], default="yiruma", help="Chord style preset when comp is 'style' or progression/chart/lyric modes are active.")
     play.add_argument("--transpose", type=int, default=0, help="Transpose key up or down by semitones.")
 
     play.add_argument("--arp-step", type=float, default=DEFAULT_ARP_STEP, help="Seconds between generated power-chord arpeggio notes.")
@@ -2201,7 +2866,12 @@ def build_parser() -> argparse.ArgumentParser:
     ui.add_argument("--port", type=int, default=8000, help="Local port to run the web server.")
     ui.add_argument("--split", type=int, default=DEFAULT_SPLIT, help="Split point between left and right hand.")
     ui.add_argument("--comp", choices=["learned", "power", "block", "style"], default="style", help="Default accompaniment style.")
-    ui.add_argument("--style", choices=["yiruma", "richard_clayderman", "ludovico_einaudi"], default="yiruma", help="Default style preset.")
+    ui.add_argument("--style", choices=[
+        "yiruma", "richard_clayderman", "ludovico_einaudi",
+        "jim_brickman", "kevin_kern", "yanni", "giovanni_marradi", "giovanni_allevi",
+        "blues", "bolero", "waltz", "boston", "slow_rock", "rumba",
+        "cha_cha_cha", "bossa_nova", "tango", "pop_ballad"
+    ], default="yiruma", help="Default style preset.")
     
     ui.add_argument("--input", help="MIDI input name or substring. Defaults to first input.")
     ui.add_argument("--output", help="Existing MIDI output name or substring.")
