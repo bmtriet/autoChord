@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const tempoVal = document.getElementById("tempo-val");
     const retriggerInput = document.getElementById("retrigger-input");
     const saveSettingsBtn = document.getElementById("save-settings-btn");
+    const findBpmBtn = document.getElementById("find-bpm-btn");
+    let isDetectingBpm = false;
+    let lastDetectedBpm = null;
     
     const progressionTriggerSelect = document.getElementById("progression-trigger");
     const triggerCcPanel = document.getElementById("trigger-cc-panel");
@@ -225,6 +228,48 @@ document.addEventListener("DOMContentLoaded", () => {
     
     saveSettingsBtn.addEventListener("click", saveSettings);
     
+    findBpmBtn.addEventListener("click", async () => {
+        if (!isDetectingBpm) {
+            try {
+                const res = await fetch("/api/bpm_detection", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "start" })
+                });
+                const data = await res.json();
+                if (data.status === "ok") {
+                    isDetectingBpm = true;
+                    findBpmBtn.classList.remove("btn-secondary");
+                    findBpmBtn.classList.add("btn-accent");
+                    findBpmBtn.classList.add("detecting");
+                    findBpmBtn.textContent = "Listening... Play beats";
+                    logMessage("sys", "BPM detection started. Play steady notes on piano.", "sys");
+                }
+            } catch (err) {
+                console.error("Error starting BPM detection", err);
+            }
+        } else {
+            try {
+                const res = await fetch("/api/bpm_detection", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "apply", bpm: lastDetectedBpm })
+                });
+                const data = await res.json();
+                if (data.status === "ok") {
+                    isDetectingBpm = false;
+                    findBpmBtn.classList.remove("btn-accent");
+                    findBpmBtn.classList.remove("detecting");
+                    findBpmBtn.classList.add("btn-secondary");
+                    findBpmBtn.textContent = "Find BPM from Play";
+                    logMessage("sys", `BPM detection applied: ${lastDetectedBpm ? Math.round(lastDetectedBpm) + ' BPM' : 'none'}`, "sys");
+                }
+            } catch (err) {
+                console.error("Error applying BPM", err);
+            }
+        }
+    });
+    
     // Auto-save settings on input/selection change
     [
         midiInputSelect, midiOutputSelect, splitPointInput, compModeSelect, stylePresetSelect,
@@ -415,6 +460,20 @@ document.addEventListener("DOMContentLoaded", () => {
                         currentTranspose = data.transpose;
                         transposeValDisplay.textContent = (currentTranspose > 0 ? "+" : "") + currentTranspose;
                     }
+                    if (data.detecting_bpm) {
+                        isDetectingBpm = true;
+                        findBpmBtn.classList.remove("btn-secondary");
+                        findBpmBtn.classList.add("btn-accent");
+                        findBpmBtn.classList.add("detecting");
+                        findBpmBtn.textContent = "Listening... Play beats";
+                    }
+                    if (data.current_bpm) {
+                        lastDetectedBpm = data.current_bpm;
+                        bpmVal.textContent = Math.round(data.current_bpm);
+                        scaleVal.textContent = parseFloat(data.time_scale || 1.0).toFixed(2);
+                        tempoSlider.value = parseFloat(data.time_scale || 1.0).toFixed(2);
+                        tempoVal.textContent = parseFloat(data.time_scale || 1.0).toFixed(2);
+                    }
                     updateTriggerPanels();
                     
                     if (data.is_playing) {
@@ -429,6 +488,31 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     break;
                     
+                case "bpm_status":
+                    if (data.detecting) {
+                        isDetectingBpm = true;
+                        findBpmBtn.classList.remove("btn-secondary");
+                        findBpmBtn.classList.add("btn-accent");
+                        findBpmBtn.classList.add("detecting");
+                        findBpmBtn.textContent = "Listening... Play beats";
+                    } else {
+                        isDetectingBpm = false;
+                        findBpmBtn.classList.remove("btn-accent");
+                        findBpmBtn.classList.remove("detecting");
+                        findBpmBtn.classList.add("btn-secondary");
+                        findBpmBtn.textContent = "Find BPM from Play";
+                    }
+                    break;
+                    
+                case "bpm_update":
+                    lastDetectedBpm = data.bpm;
+                    bpmVal.textContent = Math.round(data.bpm);
+                    scaleVal.textContent = parseFloat(data.time_scale).toFixed(2);
+                    tempoSlider.value = parseFloat(data.time_scale).toFixed(2);
+                    tempoVal.textContent = parseFloat(data.time_scale).toFixed(2);
+                    findBpmBtn.textContent = `Listening... ${Math.round(data.bpm)} BPM (Click to Set)`;
+                    break;
+
                 case "status":
                     if (data.is_playing) {
                         statusDot.classList.add("active");

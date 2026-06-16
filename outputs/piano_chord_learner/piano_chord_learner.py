@@ -2196,6 +2196,8 @@ class AppState:
         self.progression_index = 0
         self.current_bpm = None
         self.time_scale = 1.0
+        self.detecting_bpm = False
+        self.calibration_tracker = None
         
         # HopAmChuan scraper state
         self.fetched_url = None
@@ -2302,6 +2304,7 @@ def midi_engine_loop(state: AppState):
                 False, # randomize
                 style=state.style,
             )
+            accompanist.set_time_scale(state.time_scale)
             
             progression_started = False
             next_progression_time: Optional[float] = None
@@ -2331,6 +2334,7 @@ def midi_engine_loop(state: AppState):
                 accompanist.style = state.style
                 accompanist.retrigger = state.retrigger
                 accompanist.transpose = state.transpose
+                accompanist.set_time_scale(state.time_scale)
                 
                 decision = accompanist.play_example(ex, now_t, f"{trigger_lbl}:{local_idx}", section=lyric_section)
                 if note_val is not None:
@@ -2345,7 +2349,7 @@ def midi_engine_loop(state: AppState):
                 broadcast_sse(state, "decision", decision)
                 progression_started = True
                 
-                duration = ex.duration * state.progression_tempo * accompanist.time_scale
+                duration = ex.duration * state.time_scale
                 next_progression_time = now_t + duration
 
             while not state.playback_stop_event.is_set():
@@ -2431,6 +2435,20 @@ def midi_engine_loop(state: AppState):
                             pitch_trigger_armed = False
                         continue
                         
+                    # BPM detection interception for ANY note_on event
+                    if msg.type == "note_on" and velocity > 0:
+                        if state.detecting_bpm and state.calibration_tracker:
+                            detected = state.calibration_tracker.feed_note_on(now)
+                            if detected:
+                                state.current_bpm = detected
+                                state.time_scale = 72.0 / detected
+                                broadcast_sse(state, "bpm_update", {
+                                    "bpm": round(detected, 1),
+                                    "time_scale": round(72.0 / detected, 3)
+                                })
+                            raw_out.send(msg)
+                            continue
+
                     if msg.type == "note_on" and velocity > 0 and msg.note >= state.split:
                         if state.mode in {"progression", "chart", "lyric"}:
                             if state.progression_trigger == "clock":
@@ -2444,6 +2462,7 @@ def midi_engine_loop(state: AppState):
                             accompanist.style = state.style
                             accompanist.retrigger = state.retrigger
                             accompanist.transpose = state.transpose
+                            accompanist.set_time_scale(state.time_scale)
                             line, decision = accompanist.play_for_melody(msg.note, now)
                             if decision:
                                 decision["t"] = round(now - started_at, 4)
@@ -2550,6 +2569,7 @@ class UIRequestHandler(http.server.BaseHTTPRequestHandler):
                     global_state.mode = data["mode"]
                 if "tempo" in data:
                     global_state.progression_tempo = float(data["tempo"])
+                    global_state.time_scale = float(data["tempo"])
                 if "period" in data:
                     global_state.progression_period = float(data["period"]) if data["period"] is not None else None
                 if "retrigger" in data:
@@ -2578,6 +2598,32 @@ class UIRequestHandler(http.server.BaseHTTPRequestHandler):
                 stop_midi_engine()
                 start_midi_engine()
                 
+            self.send_json({"status": "ok"})
+            return
+            
+        if parsed.path == "/api/bpm_detection":
+            action = data.get("action")
+            if action == "start":
+                with global_state.lock:
+                    global_state.detecting_bpm = True
+                    global_state.calibration_tracker = BpmTracker(base_bpm=72.0, min_bpm=40.0, max_bpm=180.0, smoothing=0.6)
+                broadcast_sse(global_state, "bpm_status", {"detecting": True})
+            elif action == "stop":
+                with global_state.lock:
+                    global_state.detecting_bpm = False
+                broadcast_sse(global_state, "bpm_status", {"detecting": False})
+            elif action == "apply":
+                bpm = data.get("bpm")
+                if bpm:
+                    with global_state.lock:
+                        global_state.detecting_bpm = False
+                        global_state.current_bpm = bpm
+                        global_state.time_scale = 72.0 / bpm
+                        global_state.progression_tempo = round(72.0 / bpm, 3)
+                    broadcast_sse(global_state, "bpm_update", {
+                        "bpm": round(bpm, 1),
+                        "time_scale": round(72.0 / bpm, 3)
+                    })
             self.send_json({"status": "ok"})
             return
             
@@ -2688,6 +2734,9 @@ class UIRequestHandler(http.server.BaseHTTPRequestHandler):
                     "pitch_threshold": global_state.pitch_threshold,
                     "pitch_reset": global_state.pitch_reset,
                     "transpose": global_state.transpose,
+                    "detecting_bpm": global_state.detecting_bpm,
+                    "current_bpm": global_state.current_bpm,
+                    "time_scale": global_state.time_scale,
                 }
             self.wfile.write(f"data: {json.dumps({'event': 'state', 'data': initial_state})}\n\n".encode('utf-8'))
             self.wfile.flush()
