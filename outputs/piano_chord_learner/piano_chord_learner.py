@@ -1462,14 +1462,14 @@ class AppState:
         self.model_path = "my_style.json"
         
         # Options to support all play triggers in UI mode
-        self.progression_trigger = "clock"
+        self.progression_trigger = "cc-down"
         self.control_note = 21
         self.learn_control_note = False
         self.pitch_threshold = 6000
         self.pitch_reset = 1000
         self.cc_control = 1
-        self.cc_arm_value = 64
-        self.cc_trigger_value = 0
+        self.cc_arm_value = 60
+        self.cc_trigger_value = 30
 
         
         self.is_playing = False
@@ -1733,7 +1733,7 @@ def midi_engine_loop(state: AppState):
                     elif msg.type in ("note_off", "note_on") and getattr(msg, "note", 127) < state.split:
                         raw_out.send(msg)
                         
-                if state.mode in {"progression", "chart", "lyric"} and progression_started:
+                if state.mode in {"progression", "chart", "lyric"} and state.progression_trigger == "clock" and progression_started:
                     if next_progression_time is not None and now >= next_progression_time:
                         trigger_next(now, "clock")
                         
@@ -1752,6 +1752,12 @@ def midi_engine_loop(state: AppState):
 class UIRequestHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
+
+    def handle(self):
+        try:
+            super().handle()
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError, OSError):
+            pass
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -1998,9 +2004,20 @@ def cmd_ui(args) -> None:
     if mido:
         inputs = mido.get_input_names()
         outputs = mido.get_output_names()
-        if inputs:
+        if getattr(args, "input", None) and inputs:
+            try:
+                global_state.input_port_name = fuzzy_pick(args.input, inputs, "input")
+            except SystemExit:
+                pass
+        elif inputs:
             global_state.input_port_name = inputs[0]
-        if outputs:
+            
+        if getattr(args, "output", None) and outputs:
+            try:
+                global_state.output_port_name = fuzzy_pick(args.output, outputs, "output")
+            except SystemExit:
+                pass
+        elif outputs:
             global_state.output_port_name = outputs[0]
         
     server_address = ('', args.port)
@@ -2060,7 +2077,7 @@ def build_parser() -> argparse.ArgumentParser:
     play.add_argument("--progression-log", help="JSONL note log from training/recording, used by --mode progression.")
     play.add_argument("--progression-gap", type=float, default=DEFAULT_PROGRESSION_GAP, help="Max seconds between left-hand notes in one progression chord.")
     play.add_argument("--progression-start", type=int, default=1, help="1-based chord number to start from in progression mode.")
-    play.add_argument("--progression-trigger", choices=["clock", "note", "pedal", "control-note", "pitch-up", "cc-down"], default="clock", help="clock starts on first melody note; note advances on melody triggers; pedal/control-note/pitch-up/cc-down advance manually.")
+    play.add_argument("--progression-trigger", choices=["clock", "note", "pedal", "control-note", "pitch-up", "cc-down"], default="cc-down", help="clock starts on first melody note; note advances on melody triggers; pedal/control-note/pitch-up/cc-down advance manually.")
     play.add_argument("--progression-tempo", type=float, default=1.0, help="Multiplier for learned progression durations. Lower is faster, higher is slower.")
     play.add_argument("--progression-period", type=float, help="Fixed seconds per chord in progression clock mode.")
     play.add_argument("--progression-length", type=int, help="Use only the first N chords from the extracted progression as a loop.")
@@ -2073,8 +2090,8 @@ def build_parser() -> argparse.ArgumentParser:
     play.add_argument("--pitch-threshold", type=int, default=6000, help="Pitchwheel value that triggers next chord in --progression-trigger pitch-up mode.")
     play.add_argument("--pitch-reset", type=int, default=1000, help="Pitchwheel must come back below this value before it can trigger again.")
     play.add_argument("--cc-control", type=int, default=1, help="Control Change number used in --progression-trigger cc-down mode.")
-    play.add_argument("--cc-arm-value", type=int, default=64, help="CC value that arms the next trigger in cc-down mode.")
-    play.add_argument("--cc-trigger-value", type=int, default=0, help="CC value at or below which the armed cc-down trigger advances the chord.")
+    play.add_argument("--cc-arm-value", type=int, default=60, help="CC value that arms the next trigger in cc-down mode.")
+    play.add_argument("--cc-trigger-value", type=int, default=30, help="CC value at or below which the armed cc-down trigger advances the chord.")
     play.add_argument("--comp", choices=["learned", "power", "block", "style"], default="learned", help="Accompaniment style. learned uses trained left-hand patterns; style uses preset arpeggios; old models fall back to power.")
     play.add_argument("--style", choices=["yiruma", "richard_clayderman", "ludovico_einaudi"], default="yiruma", help="Chord style preset when comp is 'style' or progression/chart/lyric modes are active.")
 
@@ -2120,10 +2137,13 @@ def build_parser() -> argparse.ArgumentParser:
     ui.add_argument("--comp", choices=["learned", "power", "block", "style"], default="style", help="Default accompaniment style.")
     ui.add_argument("--style", choices=["yiruma", "richard_clayderman", "ludovico_einaudi"], default="yiruma", help="Default style preset.")
     
-    ui.add_argument("--progression-trigger", choices=["clock", "note", "pedal", "control-note", "pitch-up", "cc-down"], default="clock", help="clock starts on first melody note; note advances on melody triggers; pedal/control-note/pitch-up/cc-down advance manually.")
+    ui.add_argument("--input", help="MIDI input name or substring. Defaults to first input.")
+    ui.add_argument("--output", help="Existing MIDI output name or substring.")
+    
+    ui.add_argument("--progression-trigger", choices=["clock", "note", "pedal", "control-note", "pitch-up", "cc-down"], default="cc-down", help="clock starts on first melody note; note advances on melody triggers; pedal/control-note/pitch-up/cc-down advance manually.")
     ui.add_argument("--cc-control", type=int, default=1, help="Control Change number used in --progression-trigger cc-down mode.")
-    ui.add_argument("--cc-arm-value", type=int, default=64, help="CC value that arms the next trigger in cc-down mode.")
-    ui.add_argument("--cc-trigger-value", type=int, default=0, help="CC value at or below which the armed cc-down trigger advances the chord.")
+    ui.add_argument("--cc-arm-value", type=int, default=60, help="CC value that arms the next trigger in cc-down mode.")
+    ui.add_argument("--cc-trigger-value", type=int, default=30, help="CC value at or below which the armed cc-down trigger advances the chord.")
     ui.add_argument("--control-note", type=int, default=21, help="MIDI note used to advance when --progression-trigger control-note.")
     ui.add_argument("--learn-control-note", action="store_true", help="Use the first played note as the control note for this run.")
     ui.add_argument("--pitch-threshold", type=int, default=6000, help="Pitchwheel value that triggers next chord in --progression-trigger pitch-up mode.")

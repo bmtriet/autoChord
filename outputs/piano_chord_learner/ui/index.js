@@ -12,6 +12,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const retriggerInput = document.getElementById("retrigger-input");
     const saveSettingsBtn = document.getElementById("save-settings-btn");
     
+    const progressionTriggerSelect = document.getElementById("progression-trigger");
+    const triggerCcPanel = document.getElementById("trigger-cc-panel");
+    const triggerNotePanel = document.getElementById("trigger-note-panel");
+    const triggerPitchPanel = document.getElementById("trigger-pitch-panel");
+    
+    const ccControlInput = document.getElementById("cc-control");
+    const ccArmValueInput = document.getElementById("cc-arm-value");
+    const ccTriggerValueInput = document.getElementById("cc-trigger-value");
+    const controlNoteInput = document.getElementById("control-note");
+    const learnControlNoteCheckbox = document.getElementById("learn-control-note");
+    const pitchThresholdInput = document.getElementById("pitch-threshold");
+    const pitchResetInput = document.getElementById("pitch-reset");
+    
+    function updateTriggerPanels() {
+        const val = progressionTriggerSelect.value;
+        triggerCcPanel.style.display = (val === "cc-down") ? "flex" : "none";
+        triggerNotePanel.style.display = (val === "control-note") ? "flex" : "none";
+        triggerPitchPanel.style.display = (val === "pitch-up") ? "flex" : "none";
+    }
+    progressionTriggerSelect.addEventListener("change", updateTriggerPanels);
+    
     const statusDot = document.getElementById("playback-status-dot");
     const statusText = document.getElementById("playback-status-text");
     const bpmVal = document.getElementById("bpm-val");
@@ -137,7 +158,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     
-    loadPorts();
+    loadPorts().then(() => {
+        connectSSE();
+    });
 
     // Logger Utility
     function logMessage(source, message, type = "") {
@@ -165,7 +188,15 @@ document.addEventListener("DOMContentLoaded", () => {
             mode: playbackModeSelect.value,
             tempo: parseFloat(tempoSlider.value),
             retrigger: parseFloat(retriggerInput.value),
-            period: parseFloat(retriggerInput.value) * 3.0 // scale period or keep default
+            period: parseFloat(retriggerInput.value) * 3.0, // scale period or keep default
+            progression_trigger: progressionTriggerSelect.value,
+            cc_control: parseInt(ccControlInput.value),
+            cc_arm_value: parseInt(ccArmValueInput.value),
+            cc_trigger_value: parseInt(ccTriggerValueInput.value),
+            control_note: parseInt(controlNoteInput.value),
+            learn_control_note: learnControlNoteCheckbox.checked,
+            pitch_threshold: parseInt(pitchThresholdInput.value),
+            pitch_reset: parseInt(pitchResetInput.value)
         };
         
         try {
@@ -343,6 +374,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     stylePresetSelect.value = data.style || "yiruma";
                     playbackModeSelect.value = data.mode || "lyric";
                     
+                    if (data.progression_trigger) progressionTriggerSelect.value = data.progression_trigger;
+                    if (data.cc_control !== undefined) ccControlInput.value = data.cc_control;
+                    if (data.cc_arm_value !== undefined) ccArmValueInput.value = data.cc_arm_value;
+                    if (data.cc_trigger_value !== undefined) ccTriggerValueInput.value = data.cc_trigger_value;
+                    if (data.control_note !== undefined) controlNoteInput.value = data.control_note;
+                    if (data.learn_control_note !== undefined) learnControlNoteCheckbox.checked = data.learn_control_note;
+                    if (data.pitch_threshold !== undefined) pitchThresholdInput.value = data.pitch_threshold;
+                    if (data.pitch_reset !== undefined) pitchResetInput.value = data.pitch_reset;
+                    updateTriggerPanels();
+                    
                     if (data.is_playing) {
                         statusDot.classList.add("active");
                         statusText.textContent = "Engine Running";
@@ -440,7 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
     
-    connectSSE();
+    
     
     function highlightTimelineIndex(index) {
         // Remove active class from all rows
