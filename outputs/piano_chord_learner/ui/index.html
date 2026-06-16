@@ -157,6 +157,15 @@
                         <button id="reset-btn" class="btn control-btn btn-secondary">RESET</button>
                     </div>
 
+                    <div class="transpose-control" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; background-color: rgba(30, 41, 59, 0.2); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">TRANSPOSITION</span>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button id="transpose-down-btn" class="btn" style="padding: 6px 12px; font-size: 0.85rem; background-color: var(--color-secondary); color: var(--text-primary); border-radius: 4px;">- 1 semitone</button>
+                            <span id="transpose-val-display" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--color-accent-hover); min-width: 32px; text-align: center;">0</span>
+                            <button id="transpose-up-btn" class="btn" style="padding: 6px 12px; font-size: 0.85rem; background-color: var(--color-secondary); color: var(--text-primary); border-radius: 4px;">+ 1 semitone</button>
+                        </div>
+                    </div>
+
                     <div class="now-playing">
                         <div class="chord-display">
                             <label>CURRENT CHORD</label>
@@ -165,6 +174,10 @@
                         <div class="lyric-display">
                             <label>ACTIVE LYRIC</label>
                             <div id="active-lyric-text">Paste a HopAmChuan URL to fetch a song and begin playing.</div>
+                        </div>
+                        <div class="lyric-display" style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 10px;">
+                            <label>COMING UP NEXT</label>
+                            <div id="next-lyric-text" style="color: var(--text-secondary); opacity: 0.75; font-size: 0.95rem;">--</div>
                         </div>
                     </div>
                 </section>

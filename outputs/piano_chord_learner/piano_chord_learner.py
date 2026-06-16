@@ -354,7 +354,7 @@ class ChordLearner:
 
 
 class Accompanist:
-    def __init__(self, model: dict, output, channel: int, duration: float, comp: str, arp_step: float, note_length: float, retrigger: float, randomize: bool, style: str = "yiruma"):
+    def __init__(self, model: dict, output, channel: int, duration: float, comp: str, arp_step: float, note_length: float, retrigger: float, randomize: bool, style: str = "yiruma", transpose: int = 0):
         self.output = output
         self.channel = channel
         self.duration = duration
@@ -364,11 +364,14 @@ class Accompanist:
         self.retrigger = retrigger
         self.randomize = randomize
         self.style = style
+        self.transpose = transpose
         self.last_trigger_time: Optional[float] = None
         self.previous_bass_pc: Optional[int] = None
         self.active_chord: List[int] = []
         self.pending_events: List[ScheduledMidiEvent] = []
         self.time_scale = 1.0
+        self.current_example: Optional[ChordExample] = None
+        self.current_pattern_start = 0.0
         self.by_melody_and_prev: Dict[Tuple[int, Optional[int]], List[ChordExample]] = defaultdict(list)
         self.by_melody: Dict[int, List[ChordExample]] = defaultdict(list)
         self.all_examples: List[ChordExample] = []
@@ -446,6 +449,25 @@ class Accompanist:
             except Exception:
                 pass
 
+        if self.transpose != 0:
+            try:
+                transposed_notes = tuple(n + self.transpose for n in ex.notes)
+                transposed_pattern = tuple((n + self.transpose, t, v) for n, t, v in ex.pattern)
+                ex = ChordExample(
+                    notes=transposed_notes,
+                    intervals=ex.intervals,
+                    pattern=transposed_pattern,
+                    bass_pc=(ex.bass_pc + self.transpose) % 12,
+                    melody_pc=ex.melody_pc,
+                    previous_bass_pc=ex.previous_bass_pc,
+                    velocity=ex.velocity,
+                    duration=ex.duration,
+                    count=ex.count,
+                    token=ex.token,
+                )
+            except Exception:
+                pass
+
         if self.comp == "block":
             self._play_block(ex)
         else:
@@ -490,6 +512,25 @@ class Accompanist:
             except Exception:
                 pass
 
+        if self.transpose != 0:
+            try:
+                transposed_notes = tuple(n + self.transpose for n in ex.notes)
+                transposed_pattern = tuple((n + self.transpose, t, v) for n, t, v in ex.pattern)
+                ex = ChordExample(
+                    notes=transposed_notes,
+                    intervals=ex.intervals,
+                    pattern=transposed_pattern,
+                    bass_pc=(ex.bass_pc + self.transpose) % 12,
+                    melody_pc=ex.melody_pc,
+                    previous_bass_pc=ex.previous_bass_pc,
+                    velocity=ex.velocity,
+                    duration=ex.duration,
+                    count=ex.count,
+                    token=ex.token,
+                )
+            except Exception:
+                pass
+
         if self.comp == "block":
             self._play_block(ex)
         else:
@@ -518,6 +559,12 @@ class Accompanist:
             self.output.send(mido.Message("note_on", note=note, velocity=velocity, channel=self.channel))
 
     def _schedule_pattern(self, ex: ChordExample, now: float) -> None:
+        self.pending_events = []
+        self._append_pattern(ex, now)
+        self.current_example = ex
+        self.current_pattern_start = now
+
+    def _append_pattern(self, ex: ChordExample, now: float) -> None:
         pattern = ex.pattern if (self.comp in {"learned", "style"} and ex.pattern) else self._power_pattern(ex.notes, ex.velocity)
         held_notes: List[int] = []
         for note, offset, velocity in pattern:
@@ -543,9 +590,18 @@ class Accompanist:
         return tuple((note, idx * self.arp_step, velocity) for idx, note in enumerate(pattern_notes))
 
     def tick(self, now: float) -> None:
+        if self.current_example is not None:
+            pattern_dur = self.current_example.duration * self.time_scale
+            if now >= self.current_pattern_start + pattern_dur - 0.005:
+                next_start = self.current_pattern_start + pattern_dur
+                if next_start < now:
+                    next_start = now
+                self.current_pattern_start = next_start
+                self._append_pattern(self.current_example, next_start)
+
         due = [item for item in self.pending_events if item.time_s <= now + 0.0005]
         self.pending_events = [item for item in self.pending_events if item.time_s > now + 0.0005]
-        for event in sorted(due, key=lambda item: (item.time_s, 0 if item.kind == "note_on" else 1, item.note)):
+        for event in sorted(due, key=lambda item: (item.time_s, 0 if item.kind == "note_off" else 1, item.note)):
             if event.kind == "note_on":
                 self.output.send(
                     mido.Message("note_on", note=event.note, velocity=event.velocity, channel=self.channel)
@@ -562,6 +618,7 @@ class Accompanist:
         for event in self.pending_events:
             self.output.send(mido.Message("note_off", note=event.note, velocity=0, channel=self.channel))
         self.pending_events = []
+        self.current_example = None
 
 
 def fuzzy_pick(name: Optional[str], choices: List[str], label: str) -> str:
@@ -725,6 +782,7 @@ def cmd_play(args) -> None:
             args.retrigger,
             args.randomize,
             style=style_val,
+            transpose=args.transpose,
         )
         progression_started = False
         next_progression_time: Optional[float] = None
@@ -1455,6 +1513,7 @@ class AppState:
         self.comp = "style"
         self.style = "yiruma"
         self.mode = "lyric"
+        self.transpose = 0
         
         self.progression_tempo = 1.0
         self.progression_period = None
@@ -1617,6 +1676,7 @@ def midi_engine_loop(state: AppState):
                 accompanist.comp = state.comp
                 accompanist.style = state.style
                 accompanist.retrigger = state.retrigger
+                accompanist.transpose = state.transpose
                 
                 decision = accompanist.play_example(ex, now_t, f"{trigger_lbl}:{local_idx}", section=lyric_section)
                 if note_val is not None:
@@ -1723,6 +1783,7 @@ def midi_engine_loop(state: AppState):
                             accompanist.comp = state.comp
                             accompanist.style = state.style
                             accompanist.retrigger = state.retrigger
+                            accompanist.transpose = state.transpose
                             line, decision = accompanist.play_for_melody(msg.note, now)
                             if decision:
                                 decision["t"] = round(now - started_at, 4)
@@ -1849,6 +1910,8 @@ class UIRequestHandler(http.server.BaseHTTPRequestHandler):
                     global_state.pitch_threshold = int(data["pitch_threshold"])
                 if "pitch_reset" in data:
                     global_state.pitch_reset = int(data["pitch_reset"])
+                if "transpose" in data:
+                    global_state.transpose = int(data["transpose"])
 
             
             if global_state.is_playing:
@@ -1964,6 +2027,7 @@ class UIRequestHandler(http.server.BaseHTTPRequestHandler):
                     "cc_trigger_value": global_state.cc_trigger_value,
                     "pitch_threshold": global_state.pitch_threshold,
                     "pitch_reset": global_state.pitch_reset,
+                    "transpose": global_state.transpose,
                 }
             self.wfile.write(f"data: {json.dumps({'event': 'state', 'data': initial_state})}\n\n".encode('utf-8'))
             self.wfile.flush()
@@ -1991,6 +2055,7 @@ def cmd_ui(args) -> None:
     global_state.split = args.split
     global_state.comp = args.comp
     global_state.style = args.style
+    global_state.transpose = args.transpose
     
     global_state.progression_trigger = args.progression_trigger
     global_state.control_note = args.control_note
@@ -2094,6 +2159,7 @@ def build_parser() -> argparse.ArgumentParser:
     play.add_argument("--cc-trigger-value", type=int, default=30, help="CC value at or below which the armed cc-down trigger advances the chord.")
     play.add_argument("--comp", choices=["learned", "power", "block", "style"], default="learned", help="Accompaniment style. learned uses trained left-hand patterns; style uses preset arpeggios; old models fall back to power.")
     play.add_argument("--style", choices=["yiruma", "richard_clayderman", "ludovico_einaudi"], default="yiruma", help="Chord style preset when comp is 'style' or progression/chart/lyric modes are active.")
+    play.add_argument("--transpose", type=int, default=0, help="Transpose key up or down by semitones.")
 
     play.add_argument("--arp-step", type=float, default=DEFAULT_ARP_STEP, help="Seconds between generated power-chord arpeggio notes.")
     play.add_argument("--note-length", type=float, default=DEFAULT_NOTE_LENGTH, help="Seconds each arpeggio note is held.")
@@ -2139,6 +2205,7 @@ def build_parser() -> argparse.ArgumentParser:
     
     ui.add_argument("--input", help="MIDI input name or substring. Defaults to first input.")
     ui.add_argument("--output", help="Existing MIDI output name or substring.")
+    ui.add_argument("--transpose", type=int, default=0, help="Transpose key up or down by semitones.")
     
     ui.add_argument("--progression-trigger", choices=["clock", "note", "pedal", "control-note", "pitch-up", "cc-down"], default="cc-down", help="clock starts on first melody note; note advances on melody triggers; pedal/control-note/pitch-up/cc-down advance manually.")
     ui.add_argument("--cc-control", type=int, default=1, help="Control Change number used in --progression-trigger cc-down mode.")

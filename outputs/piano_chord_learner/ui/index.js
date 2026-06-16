@@ -48,6 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const activeChordName = document.getElementById("active-chord-name");
     const activeLyricText = document.getElementById("active-lyric-text");
+    const nextLyricText = document.getElementById("next-lyric-text");
+    
+    const transposeDownBtn = document.getElementById("transpose-down-btn");
+    const transposeUpBtn = document.getElementById("transpose-up-btn");
+    const transposeValDisplay = document.getElementById("transpose-val-display");
+    let currentTranspose = 0;
     
     const logBox = document.getElementById("log-box");
     const timelineContainer = document.getElementById("timeline-container");
@@ -196,7 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
             control_note: parseInt(controlNoteInput.value),
             learn_control_note: learnControlNoteCheckbox.checked,
             pitch_threshold: parseInt(pitchThresholdInput.value),
-            pitch_reset: parseInt(pitchResetInput.value)
+            pitch_reset: parseInt(pitchResetInput.value),
+            transpose: currentTranspose
         };
         
         try {
@@ -217,6 +224,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     saveSettingsBtn.addEventListener("click", saveSettings);
+    
+    // Auto-save settings on input/selection change
+    [
+        midiInputSelect, midiOutputSelect, splitPointInput, compModeSelect, stylePresetSelect,
+        playbackModeSelect, tempoSlider, retriggerInput, progressionTriggerSelect,
+        ccControlInput, ccArmValueInput, ccTriggerValueInput, controlNoteInput,
+        learnControlNoteCheckbox, pitchThresholdInput, pitchResetInput
+    ].forEach(input => {
+        if (input) {
+            input.addEventListener("change", saveSettings);
+        }
+    });
+
+    async function updateTranspose(delta) {
+        currentTranspose = Math.max(-12, Math.min(12, currentTranspose + delta));
+        transposeValDisplay.textContent = (currentTranspose > 0 ? "+" : "") + currentTranspose;
+        
+        await saveSettings();
+    }
+    
+    transposeDownBtn.addEventListener("click", () => updateTranspose(-1));
+    transposeUpBtn.addEventListener("click", () => updateTranspose(1));
 
     // Fetch HopAmChuan Song
     async function fetchSong() {
@@ -382,6 +411,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.learn_control_note !== undefined) learnControlNoteCheckbox.checked = data.learn_control_note;
                     if (data.pitch_threshold !== undefined) pitchThresholdInput.value = data.pitch_threshold;
                     if (data.pitch_reset !== undefined) pitchResetInput.value = data.pitch_reset;
+                    if (data.transpose !== undefined) {
+                        currentTranspose = data.transpose;
+                        transposeValDisplay.textContent = (currentTranspose > 0 ? "+" : "") + currentTranspose;
+                    }
                     updateTriggerPanels();
                     
                     if (data.is_playing) {
@@ -449,6 +482,20 @@ document.addEventListener("DOMContentLoaded", () => {
                         activeLyricText.textContent = `Auto chord triggered.`;
                     }
                     
+                    // Display next chord/lyric prediction
+                    if (data.progression_index !== undefined && timelineEvents && timelineEvents.length > 0) {
+                        const nextIdx = data.progression_index;
+                        if (nextIdx < timelineEvents.length) {
+                            const nextEvt = timelineEvents[nextIdx];
+                            const nextChordPart = nextEvt.chord ? `<span class="lyric-chord-tag" style="background-color: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border-color: rgba(255, 255, 255, 0.1);">${nextEvt.chord}</span> ` : '';
+                            nextLyricText.innerHTML = `${nextChordPart}${nextEvt.lyric || '<em>[Instrumental]</em>'}`;
+                        } else {
+                            nextLyricText.textContent = "End of song.";
+                        }
+                    } else {
+                        nextLyricText.textContent = "--";
+                    }
+                    
                     // Highlight row in timeline
                     if (data.progression_index !== undefined) {
                         highlightTimelineIndex(data.progression_index - 1);
@@ -471,6 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.index === 0) {
                         activeChordName.textContent = "--";
                         activeLyricText.textContent = "Timeline reset to beginning. Press play to start.";
+                        nextLyricText.textContent = "--";
                     }
                     break;
                     
