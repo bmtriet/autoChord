@@ -1,0 +1,21 @@
+# time|chord|lyric
+00:00.00|C|Và rồi ta hứa
+00:01.75|Am|sẽ quay trở lại
+00:03.50|Em|vào một ngày mai
+00:05.25|F|như hai người bạn
+00:07.00|G|Một ngày đã quên
+00:08.75|Em|tất cả lại nhớ về
+00:10.50|Am|nhau
+00:12.25|Dm|cùng năm tháng
+00:14.00|E|còn ấu
+00:14.88|E|thơ
+00:16.63|C|Và ngày hôm nay
+00:18.38|Am|anh như đứa trẻ
+00:20.13|Em|của ngày hôm qua
+00:21.88|F|xa xôi tìm về
+00:23.63|G|Lời thề tựa như
+00:25.38|Em|ánh lửa sưởi ấm
+00:27.13|Am|lòng anh
+00:28.88|Dm|như chính em,
+00:30.63|Em|cô gái đến từ
+00:32.38|Am|hôm qua

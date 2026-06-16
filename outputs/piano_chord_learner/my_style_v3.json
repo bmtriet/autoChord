@@ -1,0 +1,1091 @@
+{
+  "version": 1,
+  "split": 60,
+  "left_pattern_window": 1.0,
+  "created_at": "2026-06-16T18:21:15+0700",
+  "examples": [
+    {
+      "notes": [
+        36,
+        43
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          76
+        ],
+        [
+          43,
+          0.479,
+          33
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 4,
+      "previous_bass_pc": null,
+      "velocity": 66,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        36,
+        43,
+        48
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          76
+        ],
+        [
+          43,
+          0.479,
+          33
+        ],
+        [
+          48,
+          0.903,
+          68
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 2,
+      "previous_bass_pc": 0,
+      "velocity": 68,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        36,
+        43,
+        48
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          76
+        ],
+        [
+          43,
+          0.479,
+          33
+        ],
+        [
+          48,
+          0.903,
+          68
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 0,
+      "previous_bass_pc": 0,
+      "velocity": 73,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        57
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          45,
+          0.0,
+          49
+        ],
+        [
+          52,
+          0.5,
+          35
+        ],
+        [
+          57,
+          0.98,
+          48
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 0,
+      "previous_bass_pc": 9,
+      "velocity": 62,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        57
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          45,
+          0.0,
+          49
+        ],
+        [
+          52,
+          0.5,
+          35
+        ],
+        [
+          57,
+          0.98,
+          48
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 2,
+      "previous_bass_pc": 9,
+      "velocity": 62,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        57
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          45,
+          0.0,
+          49
+        ],
+        [
+          52,
+          0.5,
+          35
+        ],
+        [
+          57,
+          0.98,
+          48
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 4,
+      "previous_bass_pc": 9,
+      "velocity": 66,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        57
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          45,
+          0.0,
+          49
+        ],
+        [
+          52,
+          0.5,
+          35
+        ],
+        [
+          57,
+          0.98,
+          48
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 2,
+      "previous_bass_pc": 9,
+      "velocity": 64,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          40,
+          0.0,
+          51
+        ],
+        [
+          47,
+          0.486,
+          19
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 0,
+      "previous_bass_pc": 9,
+      "velocity": 54,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47,
+        52,
+        53,
+        57,
+        59
+      ],
+      "intervals": [
+        0,
+        7,
+        0,
+        1,
+        5,
+        7
+      ],
+      "pattern": [
+        [
+          40,
+          0.0,
+          67
+        ],
+        [
+          53,
+          0.004,
+          63
+        ],
+        [
+          47,
+          0.438,
+          63
+        ],
+        [
+          57,
+          0.655,
+          64
+        ],
+        [
+          52,
+          0.879,
+          63
+        ],
+        [
+          59,
+          0.89,
+          61
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 0,
+      "previous_bass_pc": 4,
+      "velocity": 66,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47,
+        52,
+        53,
+        57,
+        59
+      ],
+      "intervals": [
+        0,
+        7,
+        0,
+        1,
+        5,
+        7
+      ],
+      "pattern": [
+        [
+          40,
+          0.0,
+          67
+        ],
+        [
+          53,
+          0.004,
+          63
+        ],
+        [
+          47,
+          0.438,
+          63
+        ],
+        [
+          57,
+          0.655,
+          64
+        ],
+        [
+          52,
+          0.879,
+          63
+        ],
+        [
+          59,
+          0.89,
+          61
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 2,
+      "previous_bass_pc": 4,
+      "velocity": 73,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47,
+        52,
+        53,
+        57,
+        59
+      ],
+      "intervals": [
+        0,
+        7,
+        0,
+        1,
+        5,
+        7
+      ],
+      "pattern": [
+        [
+          40,
+          0.0,
+          67
+        ],
+        [
+          53,
+          0.004,
+          63
+        ],
+        [
+          47,
+          0.438,
+          63
+        ],
+        [
+          57,
+          0.655,
+          64
+        ],
+        [
+          52,
+          0.879,
+          63
+        ],
+        [
+          59,
+          0.89,
+          61
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 0,
+      "previous_bass_pc": 4,
+      "velocity": 69,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        59
+      ],
+      "intervals": [
+        0,
+        7,
+        2
+      ],
+      "pattern": [
+        [
+          59,
+          0.0,
+          72
+        ],
+        [
+          45,
+          0.019,
+          70
+        ],
+        [
+          52,
+          0.457,
+          64
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 0,
+      "previous_bass_pc": 9,
+      "velocity": 62,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        59
+      ],
+      "intervals": [
+        0,
+        7,
+        2
+      ],
+      "pattern": [
+        [
+          59,
+          0.0,
+          72
+        ],
+        [
+          45,
+          0.019,
+          70
+        ],
+        [
+          52,
+          0.457,
+          64
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 2,
+      "previous_bass_pc": 9,
+      "velocity": 72,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        45,
+        52,
+        59
+      ],
+      "intervals": [
+        0,
+        7,
+        2
+      ],
+      "pattern": [
+        [
+          59,
+          0.0,
+          72
+        ],
+        [
+          45,
+          0.019,
+          70
+        ],
+        [
+          52,
+          0.457,
+          64
+        ]
+      ],
+      "bass_pc": 9,
+      "melody_pc": 4,
+      "previous_bass_pc": 9,
+      "velocity": 77,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          69
+        ],
+        [
+          45,
+          0.488,
+          36
+        ],
+        [
+          50,
+          0.916,
+          70
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 2,
+      "previous_bass_pc": 2,
+      "velocity": 70,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          69
+        ],
+        [
+          45,
+          0.488,
+          36
+        ],
+        [
+          50,
+          0.916,
+          70
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 5,
+      "previous_bass_pc": 2,
+      "velocity": 56,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          69
+        ],
+        [
+          45,
+          0.488,
+          36
+        ],
+        [
+          50,
+          0.916,
+          70
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 4,
+      "previous_bass_pc": 2,
+      "velocity": 71,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          47,
+          0.0,
+          25
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 5,
+      "previous_bass_pc": 4,
+      "velocity": 49,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          47,
+          0.0,
+          25
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 4,
+      "previous_bass_pc": 4,
+      "velocity": 42,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          47,
+          0.0,
+          25
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 2,
+      "previous_bass_pc": 4,
+      "velocity": 38,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          47,
+          0.0,
+          25
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 4,
+      "previous_bass_pc": 4,
+      "velocity": 44,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47,
+        52
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          52,
+          0.0,
+          45
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 4,
+      "previous_bass_pc": 4,
+      "velocity": 62,
+      "duration": 1.25,
+      "count": 2
+    },
+    {
+      "notes": [
+        36,
+        43
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          73
+        ],
+        [
+          43,
+          0.385,
+          74
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 5,
+      "previous_bass_pc": 4,
+      "velocity": 83,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        36,
+        43
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          73
+        ],
+        [
+          43,
+          0.385,
+          74
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 4,
+      "previous_bass_pc": 4,
+      "velocity": 81,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        36,
+        43,
+        48
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          73
+        ],
+        [
+          43,
+          0.385,
+          74
+        ],
+        [
+          48,
+          0.861,
+          40
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 2,
+      "previous_bass_pc": 0,
+      "velocity": 72,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        36,
+        43,
+        48
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          36,
+          0.0,
+          73
+        ],
+        [
+          43,
+          0.385,
+          74
+        ],
+        [
+          48,
+          0.861,
+          40
+        ]
+      ],
+      "bass_pc": 0,
+      "melody_pc": 0,
+      "previous_bass_pc": 0,
+      "velocity": 68,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          76
+        ],
+        [
+          45,
+          0.433,
+          36
+        ],
+        [
+          50,
+          0.858,
+          19
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 0,
+      "previous_bass_pc": 2,
+      "velocity": 56,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          76
+        ],
+        [
+          45,
+          0.433,
+          36
+        ],
+        [
+          50,
+          0.858,
+          19
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 0,
+      "previous_bass_pc": 2,
+      "velocity": 58,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          76
+        ],
+        [
+          45,
+          0.433,
+          36
+        ],
+        [
+          50,
+          0.858,
+          19
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 2,
+      "previous_bass_pc": 2,
+      "velocity": 56,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        38,
+        45,
+        50
+      ],
+      "intervals": [
+        0,
+        7,
+        0
+      ],
+      "pattern": [
+        [
+          38,
+          0.0,
+          76
+        ],
+        [
+          45,
+          0.433,
+          36
+        ],
+        [
+          50,
+          0.858,
+          19
+        ]
+      ],
+      "bass_pc": 2,
+      "melody_pc": 4,
+      "previous_bass_pc": 2,
+      "velocity": 64,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          40,
+          0.0,
+          76
+        ],
+        [
+          47,
+          0.389,
+          76
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 2,
+      "previous_bass_pc": 4,
+      "velocity": 83,
+      "duration": 1.25,
+      "count": 1
+    },
+    {
+      "notes": [
+        40,
+        47
+      ],
+      "intervals": [
+        0,
+        7
+      ],
+      "pattern": [
+        [
+          40,
+          0.0,
+          76
+        ],
+        [
+          47,
+          0.389,
+          76
+        ]
+      ],
+      "bass_pc": 4,
+      "melody_pc": 0,
+      "previous_bass_pc": 4,
+      "velocity": 79,
+      "duration": 1.25,
+      "count": 1
+    }
+  ]
+}

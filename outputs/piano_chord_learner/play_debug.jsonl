@@ -1,0 +1,66 @@
+{"t": 4.4209, "source": "input", "event": "note_on", "note": 64, "name": "E4", "pc": 4, "velocity": 59, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 64, "melody_name": "E4", "chosen_chord": "C/G", "chosen_notes": [36, 43], "chosen_note_names": ["C2", "G2"], "pattern": [[36, 0.0, 82], [43, 0.439, 84]], "reason": "melody+previous", "candidate_count": 1, "previous_bass_pc": null, "bass_pc": 0, "count": 1, "t": 4.4209}
+{"t": 4.7469, "source": "input", "event": "note_on", "note": 65, "name": "F4", "pc": 5, "velocity": 67, "hand": "right", "channel": 0}
+{"t": 4.751, "source": "input", "event": "note_off", "note": 64, "name": "E4", "pc": 4, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 4.9838, "source": "input", "event": "note_off", "note": 65, "name": "F4", "pc": 5, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 5.0122, "source": "input", "event": "note_on", "note": 64, "name": "E4", "pc": 4, "velocity": 62, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 64, "melody_name": "E4", "chosen_chord": "C/G", "chosen_notes": [36, 43], "chosen_note_names": ["C2", "G2"], "pattern": [[36, 0.0, 69], [43, 0.436, 75]], "reason": "melody+previous", "candidate_count": 1, "previous_bass_pc": 0, "bass_pc": 0, "count": 1, "t": 5.0122}
+{"t": 5.1842, "source": "input", "event": "note_off", "note": 64, "name": "E4", "pc": 4, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 5.2073, "source": "input", "event": "note_on", "note": 65, "name": "F4", "pc": 5, "velocity": 64, "hand": "right", "channel": 0}
+{"t": 5.4544, "source": "input", "event": "note_off", "note": 65, "name": "F4", "pc": 5, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 5.4694, "source": "input", "event": "note_on", "note": 67, "name": "G4", "pc": 7, "velocity": 67, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 67, "melody_name": "G4", "chosen_chord": "C/E/B", "chosen_notes": [36, 47, 52], "chosen_note_names": ["C2", "B2", "E3"], "pattern": [[47, 0.0, 78], [52, 0.362, 63], [36, 1.165, 69]], "reason": "melody", "candidate_count": 1, "previous_bass_pc": 4, "bass_pc": 0, "count": 1, "t": 5.4694}
+{"t": 5.9406, "source": "input", "event": "note_on", "note": 65, "name": "F4", "pc": 5, "velocity": 72, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 65, "melody_name": "F4", "chosen_chord": "D/E/A", "chosen_notes": [38, 52, 57], "chosen_note_names": ["D2", "E3", "A3"], "pattern": [[52, 0.0, 48], [57, 0.402, 51], [38, 1.179, 81]], "reason": "melody", "candidate_count": 4, "previous_bass_pc": 9, "bass_pc": 2, "count": 1, "t": 5.9406}
+{"t": 5.9906, "source": "input", "event": "note_off", "note": 67, "name": "G4", "pc": 7, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 6.1859, "source": "input", "event": "note_off", "note": 65, "name": "F4", "pc": 5, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 6.2014, "source": "input", "event": "note_on", "note": 64, "name": "E4", "pc": 4, "velocity": 75, "hand": "right", "channel": 0}
+{"t": 6.6316, "source": "input", "event": "note_off", "note": 64, "name": "E4", "pc": 4, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 6.6538, "source": "input", "event": "note_on", "note": 62, "name": "D4", "pc": 2, "velocity": 61, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 62, "melody_name": "D4", "chosen_chord": "D/A", "chosen_notes": [38, 45, 50], "chosen_note_names": ["D2", "A2", "D3"], "pattern": [[38, 0.0, 81], [45, 0.514, 19], [50, 0.807, 54]], "reason": "melody+previous", "candidate_count": 1, "previous_bass_pc": 2, "bass_pc": 2, "count": 1, "t": 6.6538}
+{"t": 7.2131, "source": "input", "event": "note_on", "note": 60, "name": "C4", "pc": 0, "velocity": 71, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 60, "melody_name": "C4", "chosen_chord": "E/A/B", "chosen_notes": [45, 52, 57, 59], "chosen_note_names": ["A2", "E3", "A3", "B3"], "pattern": [[57, 0.0, 79], [45, 0.209, 86], [57, 0.224, 76], [52, 0.59, 63], [57, 0.986, 72], [59, 1.159, 68]], "reason": "melody", "candidate_count": 15, "previous_bass_pc": 9, "bass_pc": 9, "count": 1, "t": 7.2131}
+{"t": 7.2241, "source": "input", "event": "note_off", "note": 62, "name": "D4", "pc": 2, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 8.781, "source": "input", "event": "note_off", "note": 60, "name": "C4", "pc": 0, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 8.945, "source": "input", "event": "note_on", "note": 60, "name": "C4", "pc": 0, "velocity": 66, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 60, "melody_name": "C4", "chosen_chord": "E/A/B", "chosen_notes": [45, 52, 57, 59], "chosen_note_names": ["A2", "E3", "A3", "B3"], "pattern": [[57, 0.0, 79], [45, 0.209, 86], [57, 0.224, 76], [52, 0.59, 63], [57, 0.986, 72], [59, 1.159, 68]], "reason": "melody+previous", "candidate_count": 7, "previous_bass_pc": 9, "bass_pc": 9, "count": 1, "t": 8.945}
+{"t": 9.1259, "source": "input", "event": "note_on", "note": 62, "name": "D4", "pc": 2, "velocity": 59, "hand": "right", "channel": 0}
+{"t": 9.1448, "source": "input", "event": "note_off", "note": 60, "name": "C4", "pc": 0, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 9.3544, "source": "input", "event": "note_off", "note": 62, "name": "D4", "pc": 2, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 9.3654, "source": "input", "event": "note_on", "note": 64, "name": "E4", "pc": 4, "velocity": 77, "hand": "right", "channel": 0}
+{"t": 9.6931, "source": "input", "event": "note_on", "note": 62, "name": "D4", "pc": 2, "velocity": 57, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 62, "melody_name": "D4", "chosen_chord": "E/A/B", "chosen_notes": [45, 52, 59], "chosen_note_names": ["A2", "E3", "B3"], "pattern": [[59, 0.0, 58], [52, 0.012, 63], [59, 0.778, 99], [45, 0.793, 75], [52, 1.183, 48]], "reason": "melody+previous", "candidate_count": 5, "previous_bass_pc": 9, "bass_pc": 9, "count": 1, "t": 9.6931}
+{"t": 9.7125, "source": "input", "event": "note_off", "note": 64, "name": "E4", "pc": 4, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 9.9138, "source": "input", "event": "note_off", "note": 62, "name": "D4", "pc": 2, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 9.9216, "source": "input", "event": "note_on", "note": 60, "name": "C4", "pc": 0, "velocity": 71, "hand": "right", "channel": 0}
+{"t": 10.304, "source": "input", "event": "note_off", "note": 60, "name": "C4", "pc": 0, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 10.3115, "source": "input", "event": "note_on", "note": 59, "name": "B3", "pc": 11, "velocity": 55, "hand": "left", "channel": 0}
+{"t": 10.9435, "source": "input", "event": "note_on", "note": 57, "name": "A3", "pc": 9, "velocity": 78, "hand": "left", "channel": 0}
+{"t": 10.9923, "source": "input", "event": "note_off", "note": 59, "name": "B3", "pc": 11, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 12.4989, "source": "input", "event": "note_on", "note": 55, "name": "G3", "pc": 7, "velocity": 82, "hand": "left", "channel": 0}
+{"t": 12.5695, "source": "input", "event": "note_off", "note": 57, "name": "A3", "pc": 9, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 12.9756, "source": "input", "event": "note_off", "note": 55, "name": "G3", "pc": 7, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 13.0661, "source": "input", "event": "note_on", "note": 55, "name": "G3", "pc": 7, "velocity": 69, "hand": "left", "channel": 0}
+{"t": 13.259, "source": "input", "event": "note_on", "note": 57, "name": "A3", "pc": 9, "velocity": 76, "hand": "left", "channel": 0}
+{"t": 13.315, "source": "input", "event": "note_off", "note": 55, "name": "G3", "pc": 7, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 13.4736, "source": "input", "event": "note_on", "note": 59, "name": "B3", "pc": 11, "velocity": 51, "hand": "left", "channel": 0}
+{"t": 13.5078, "source": "input", "event": "note_off", "note": 57, "name": "A3", "pc": 9, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 14.0478, "source": "input", "event": "note_off", "note": 59, "name": "B3", "pc": 11, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 14.0519, "source": "input", "event": "note_on", "note": 52, "name": "E3", "pc": 4, "velocity": 65, "hand": "left", "channel": 0}
+{"t": 14.602, "source": "input", "event": "note_on", "note": 57, "name": "A3", "pc": 9, "velocity": 53, "hand": "left", "channel": 0}
+{"t": 14.6623, "source": "input", "event": "note_off", "note": 52, "name": "E3", "pc": 4, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 14.7908, "source": "input", "event": "note_on", "note": 59, "name": "B3", "pc": 11, "velocity": 65, "hand": "left", "channel": 0}
+{"t": 14.8139, "source": "input", "event": "note_off", "note": 57, "name": "A3", "pc": 9, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 14.9733, "source": "input", "event": "note_on", "note": 60, "name": "C4", "pc": 0, "velocity": 70, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 60, "melody_name": "C4", "chosen_chord": "E/A/B", "chosen_notes": [45, 52, 57, 59], "chosen_note_names": ["A2", "E3", "A3", "B3"], "pattern": [[57, 0.0, 79], [45, 0.209, 86], [57, 0.224, 76], [52, 0.59, 63], [57, 0.986, 72], [59, 1.159, 68]], "reason": "melody+previous", "candidate_count": 7, "previous_bass_pc": 9, "bass_pc": 9, "count": 1, "t": 14.9733}
+{"t": 15.0423, "source": "input", "event": "note_off", "note": 59, "name": "B3", "pc": 11, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 15.1344, "source": "input", "event": "note_off", "note": 60, "name": "C4", "pc": 0, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 15.1377, "source": "input", "event": "note_on", "note": 62, "name": "D4", "pc": 2, "velocity": 60, "hand": "right", "channel": 0}
+{"t": 15.3133, "source": "input", "event": "note_on", "note": 60, "name": "C4", "pc": 0, "velocity": 62, "hand": "right", "channel": 0}
+{"t": 15.3317, "source": "input", "event": "note_off", "note": 62, "name": "D4", "pc": 2, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 15.5458, "source": "input", "event": "note_on", "note": 59, "name": "B3", "pc": 11, "velocity": 97, "hand": "left", "channel": 0}
+{"t": 15.5612, "source": "input", "event": "note_off", "note": 60, "name": "C4", "pc": 0, "velocity": 0, "hand": "right", "channel": 0}
+{"t": 16.1662, "source": "input", "event": "note_on", "note": 60, "name": "C4", "pc": 0, "velocity": 79, "hand": "right", "channel": 0}
+{"event": "auto_chord", "melody_note": 60, "melody_name": "C4", "chosen_chord": "E/A/B", "chosen_notes": [45, 52, 57, 59], "chosen_note_names": ["A2", "E3", "A3", "B3"], "pattern": [[57, 0.0, 79], [45, 0.209, 86], [57, 0.224, 76], [52, 0.59, 63], [57, 0.986, 72], [59, 1.159, 68]], "reason": "melody+previous", "candidate_count": 7, "previous_bass_pc": 9, "bass_pc": 9, "count": 1, "t": 16.1662}
+{"t": 16.1973, "source": "input", "event": "note_off", "note": 59, "name": "B3", "pc": 11, "velocity": 0, "hand": "left", "channel": 0}
+{"t": 16.3857, "source": "input", "event": "note_off", "note": 60, "name": "C4", "pc": 0, "velocity": 0, "hand": "right", "channel": 0}

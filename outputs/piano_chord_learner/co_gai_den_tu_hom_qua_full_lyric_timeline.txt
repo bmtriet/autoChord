@@ -1,0 +1,46 @@
+# time|chord|section|lyric
+00:00.00|C|verse|Và rồi ta hứa sẽ quay trở
+00:01.75|Am|verse|lại,
+00:03.50|Em|verse|vào một ngày mai như hai người
+00:05.25|F|verse|bạn
+00:07.00|G|verse|Một ngày đã quên tất
+00:08.75|Em|verse|cả lại nhớ về
+00:10.50|Am|verse|nhau
+00:12.25|Dm|verse|cùng năm tháng còn ấu
+00:14.00|E|verse|thơ
+00:15.75|E|verse|___
+00:17.50|C|verse|Và ngày hôm nay anh như đứa
+00:19.25|Am|verse|trẻ
+00:21.00|Em|verse|của ngày hôm qua xa xôi tìm
+00:22.75|F|verse|về
+00:24.50|G|verse|Lời thề tựa như ánh
+00:26.25|Em|verse|lửa sưởi ấm lòng
+00:28.00|Am|verse|anh
+00:29.75|Dm|verse|như chính em, cô
+00:31.50|Em|verse|gái đến từ hôm
+00:33.25|Am|verse|qua
+00:35.00|Am|verse|___
+00:36.75|C|chorus|Tình yêu đầu trôi xa dư âm để
+00:38.50|Am|chorus|lại
+00:40.25|Em|chorus|Và nếu thuộc về nhau em sẽ trở
+00:42.00|F|chorus|lại
+00:43.75|Dm|chorus|Và anh được thấy hoa rơi như cơn
+00:45.50|G|chorus|mưa
+00:47.25|C|chorus|tươi thắm những con đường
+00:49.00|G|chorus|___
+00:50.75|C|chorus|Dường như là vẫn thế em không trở
+00:52.50|Am|chorus|lại
+00:54.25|Em|chorus|và mãi là như thế anh không trẻ
+00:56.00|F|chorus|lại
+00:57.75|Dm|chorus|Dòng thời gian trôi như ánh sao
+00:59.50|G|chorus|băng
+01:01.25|E|chorus|trong khoảng khắc của chúng
+01:03.00|Am|chorus|ta
+01:04.75|Dm|chorus|Nhiều năm xa hạnh phúc anh muốn bên
+01:06.50|G|chorus|em
+01:08.25|Em|chorus|Cuộc đời này dù ngắn, nỗi nhớ quá
+01:10.00|Am|chorus|dài
+01:11.75|Dm|chorus|Và cũng đã đủ lớn để mong bé
+01:13.50|G|chorus|lại
+01:15.25|G|chorus|__
+01:17.00|C|chorus|như ngày hôm qua.

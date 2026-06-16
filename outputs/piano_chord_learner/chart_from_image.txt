@@ -1,0 +1,12 @@
+# Chord chart transcribed from the provided image.
+# One token = one chord slot.
+
+C Am
+Em F
+G Em Am
+Dm E E
+
+C Am
+Em F
+G Em Am
+Dm Em Am Am

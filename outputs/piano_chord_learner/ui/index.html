@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Chord Learner - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for Settings -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-accent">Piano</span> Chord Learner
+            </div>
+            
+            <div class="settings-group">
+                <h3>MIDI CONFIGURATION</h3>
+                <label for="midi-input">Midi Input Port</label>
+                <select id="midi-input" class="form-control">
+                    <option value="">Detecting ports...</option>
+                </select>
+
+                <label for="midi-output">Midi Output Port</label>
+                <select id="midi-output" class="form-control">
+                    <option value="">Virtual Out (Default)</option>
+                </select>
+                
+                <label for="split-point">Split Key Note (Chords below this)</label>
+                <div class="input-with-label">
+                    <input type="number" id="split-point" min="21" max="108" value="60" class="form-control">
+                    <span id="split-note-name" class="side-badge">C4</span>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3>ACCOMPANIMENT STYLE</h3>
+                <label for="comp-mode">Accompaniment Mode</label>
+                <select id="comp-mode" class="form-control">
+                    <option value="style">Preset Arpeggios (Style)</option>
+                    <option value="learned">Trained Left Hand (Learned)</option>
+                    <option value="block">Solid Block Chords</option>
+                    <option value="power">Simple Power Chords</option>
+                </select>
+
+                <label for="style-preset">Style Preset</label>
+                <select id="style-preset" class="form-control">
+                    <option value="yiruma">Yiruma (Flowing rolling)</option>
+                    <option value="richard_clayderman">Richard Clayderman (Romantic pulses)</option>
+                    <option value="ludovico_einaudi">Ludovico Einaudi (Minimalist waves)</option>
+                </select>
+            </div>
+
+            <div class="settings-group">
+                <h3>PLAYBACK TIMING</h3>
+                <label for="playback-mode">Play Mode</label>
+                <select id="playback-mode" class="form-control">
+                    <option value="lyric">Lyric Timeline Mode</option>
+                    <option value="chart">Fixed Chord Chart Mode</option>
+                    <option value="melody">Melody Auto-Trigger Mode</option>
+                    <option value="progression">Progression Log Mode</option>
+                </select>
+
+                <label for="tempo-slider">Tempo Scale: <span id="tempo-val">1.0</span>x</label>
+                <input type="range" id="tempo-slider" min="0.5" max="2.0" step="0.05" value="1.0" class="slider">
+
+                <label for="retrigger-input">Retrigger Threshold (seconds)</label>
+                <input type="number" id="retrigger-input" min="0.1" max="2.0" step="0.05" value="0.45" class="form-control">
+            </div>
+
+            <div class="settings-group">
+                <h3>PROGRESSION TRIGGER</h3>
+                <label for="progression-trigger">Trigger Type</label>
+                <select id="progression-trigger" class="form-control">
+                    <option value="clock">Clock (Auto-timed)</option>
+                    <option value="note">Melody Notes</option>
+                    <option value="pedal">Sustain Pedal (CC 64)</option>
+                    <option value="control-note">MIDI Control Key</option>
+                    <option value="pitch-up">Pitch Wheel (Pitch-up)</option>
+                    <option value="cc-down">CC Value (Modulation CC1)</option>
+                </select>
+
+                <!-- Trigger settings sub-panels -->
+                <div id="trigger-cc-panel" class="trigger-panel" style="display: none;">
+                    <label for="cc-control">CC Controller Number</label>
+                    <input type="number" id="cc-control" min="0" max="127" value="1" class="form-control">
+                    
+                    <label for="cc-arm-value">CC Arm Value (&gt;=)</label>
+                    <input type="number" id="cc-arm-value" min="0" max="127" value="60" class="form-control">
+                    
+                    <label for="cc-trigger-value">CC Trigger Value (&lt;=)</label>
+                    <input type="number" id="cc-trigger-value" min="0" max="127" value="30" class="form-control">
+                </div>
+
+                <div id="trigger-note-panel" class="trigger-panel" style="display: none;">
+                    <label for="control-note">MIDI Control Note Number</label>
+                    <input type="number" id="control-note" min="0" max="127" value="21" class="form-control">
+                    
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="learn-control-note">
+                        <label for="learn-control-note">Learn key dynamically</label>
+                    </div>
+                </div>
+
+                <div id="trigger-pitch-panel" class="trigger-panel" style="display: none;">
+                    <label for="pitch-threshold">Pitch Wheel Threshold</label>
+                    <input type="number" id="pitch-threshold" min="-8192" max="8191" value="6000" class="form-control">
+                    
+                    <label for="pitch-reset">Pitch Wheel Reset (&lt;=)</label>
+                    <input type="number" id="pitch-reset" min="-8192" max="8191" value="1000" class="form-control">
+                </div>
+            </div>
+
+            <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+        </aside>
+
+        <!-- Main Dashboard View -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="status-panel">
+                    <span class="status-dot" id="playback-status-dot"></span>
+                    <span id="playback-status-text">Engine Stopped</span>
+                </div>
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <span class="stat-label">Tracked BPM</span>
+                        <span class="stat-value" id="bpm-val">--</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Time Scale</span>
+                        <span class="stat-value" id="scale-val">1.0</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- HopAmChuan URL Import Section -->
+            <section class="card import-card">
+                <h2>Import Song from HopAmChuan</h2>
+                <div class="import-bar">
+                    <input type="text" id="hac-url" placeholder="https://hopamchuan.com/song/..." class="form-control">
+                    <button id="fetch-btn" class="btn btn-accent">Fetch Lyrics & Chords</button>
+                </div>
+            </section>
+
+            <!-- Playback Panel & Timeline -->
+            <div class="dashboard-grid">
+                <!-- Playback Panel -->
+                <section class="card playback-card">
+                    <h2>Playback Control</h2>
+                    <div class="control-buttons">
+                        <button id="play-btn" class="btn control-btn btn-success">PLAY</button>
+                        <button id="stop-btn" class="btn control-btn btn-danger">STOP</button>
+                        <button id="next-btn" class="btn control-btn btn-warning">NEXT CHORD</button>
+                        <button id="reset-btn" class="btn control-btn btn-secondary">RESET</button>
+                    </div>
+
+                    <div class="now-playing">
+                        <div class="chord-display">
+                            <label>CURRENT CHORD</label>
+                            <div id="active-chord-name">--</div>
+                        </div>
+                        <div class="lyric-display">
+                            <label>ACTIVE LYRIC</label>
+                            <div id="active-lyric-text">Paste a HopAmChuan URL to fetch a song and begin playing.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Logger Panel -->
+                <section class="card logger-card">
+                    <h2>Live Activity Logger</h2>
+                    <div id="log-box" class="log-container">
+                        <div class="log-row sys">System initialized. Awaiting SSE connection...</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Song Timeline / Lyrics View -->
+            <section class="card timeline-card">
+                <h2>Lyrics Timeline</h2>
+                <div id="timeline-container" class="timeline-wrapper">
+                    <div class="timeline-empty">No song loaded.</div>
+                </div>
+            </section>
+
+            <!-- Virtual Piano Keyboard -->
+            <section class="card keyboard-card">
+                <div class="keyboard-header">
+                    <h2>Virtual Piano Keyboard</h2>
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-dot melody"></span>Right Hand (Melody)</span>
+                        <span class="legend-item"><span class="legend-dot chord"></span>Left Hand (Auto Chord)</span>
+                    </div>
+                </div>
+                <div class="piano-outer">
+                    <div id="piano-keyboard" class="piano-keys-container"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
